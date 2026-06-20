@@ -47,9 +47,22 @@ export interface ErpItem {
   description?: string;
 }
 
+// Build a query string with filters/fields JSON-encoded then URL-encoded so
+// user-controlled values can never break out of the filter structure.
+function listQuery(filters: unknown[], fields: string[], limit = 0) {
+  const p = new URLSearchParams();
+  p.set("filters", JSON.stringify(filters));
+  p.set("fields", JSON.stringify(fields));
+  p.set("limit_page_length", String(limit));
+  return p.toString();
+}
+
 export function getItems() {
   return api<ErpItem[]>(
-    `/api/resource/Item?filters=[["show_in_website","=",1]]&fields=["item_code","item_name","item_group","description"]&limit_page_length=0`
+    `/api/resource/Item?${listQuery(
+      [["show_in_website", "=", 1]],
+      ["item_code", "item_name", "item_group", "description"]
+    )}`
   );
 }
 
@@ -61,7 +74,14 @@ export async function getItemPrice(
   itemCode: string
 ): Promise<number | null> {
   const data = await api<{ price_list_rate: number }[]>(
-    `/api/resource/Item Price?filters=[["item_code","=","${itemCode}"],["price_list","=","${PRICE_LIST}"]]&fields=["price_list_rate"]&limit_page_length=1`
+    `/api/resource/${encodeURIComponent("Item Price")}?${listQuery(
+      [
+        ["item_code", "=", itemCode],
+        ["price_list", "=", PRICE_LIST],
+      ],
+      ["price_list_rate"],
+      1
+    )}`
   );
   return data && data.length ? data[0].price_list_rate : null;
 }

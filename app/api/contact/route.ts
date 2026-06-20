@@ -17,6 +17,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
   const d = parsed.data;
+  const esc = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
   if (erpnextConfigured) {
     createLeadFromInquiry({
@@ -32,12 +34,12 @@ export async function POST(req: Request) {
     await sendMail({
       to,
       replyTo: d.email,
-      subject: `Website Contact — ${d.name}`,
-      html: `<p><strong>${d.name}</strong>${
-        d.company ? ` (${d.company})` : ""
+      subject: `Website Contact — ${d.name.replace(/[\r\n]/g, " ")}`,
+      html: `<p><strong>${esc(d.name)}</strong>${
+        d.company ? ` (${esc(d.company)})` : ""
       }</p>
-        <p>Email: ${d.email}<br/>Phone: ${d.phone}</p>
-        <p>${d.message.replace(/</g, "&lt;").replace(/\n/g, "<br/>")}</p>`,
+        <p>Email: ${esc(d.email)}<br/>Phone: ${esc(d.phone)}</p>
+        <p>${esc(d.message).replace(/\n/g, "<br/>")}</p>`,
     }).catch((e) => console.error("contact email failed", e));
   }
 
