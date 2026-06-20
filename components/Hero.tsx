@@ -1,10 +1,19 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 export function Hero() {
   return (
     <section className="relative overflow-hidden border-b border-light-grey bg-white">
       <div className="grid-bg absolute inset-0" aria-hidden />
+      <Image
+        src="/snow-mark.svg"
+        alt=""
+        aria-hidden
+        width={420}
+        height={420}
+        className="pointer-events-none absolute -right-16 -top-20 hidden opacity-[0.06] md:block"
+      />
       <div className="container-tech relative py-16 md:py-24">
         <div className="max-w-3xl">
           <span className="label-mono text-primary">

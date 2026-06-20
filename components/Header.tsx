@@ -27,7 +27,7 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-light-grey bg-white/95 backdrop-blur">
       <div className="container-tech flex h-16 items-center justify-between gap-4">
         <Link href="/" className="flex items-center" aria-label="Snow Engineering home">
-          <Image src="/snow-logo.svg" alt="Snow Engineering" width={180} height={43} priority />
+          <Image src="/snow-logo.png" alt="Snow Engineering" width={186} height={68} priority className="h-11 w-auto" />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">

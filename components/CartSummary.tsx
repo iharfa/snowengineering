@@ -29,11 +29,11 @@ export function CartSummary() {
         <li key={item.id} className="tech-card flex gap-4 p-4">
           <div className="relative h-20 w-20 flex-shrink-0 rounded bg-background">
             <Image
-              src="/products/placeholder.svg"
+              src={`/products/${item.slug}.jpg`}
               alt={item.name}
               fill
               sizes="80px"
-              className="object-contain p-2"
+              className="object-cover"
             />
           </div>
           <div className="flex flex-1 flex-col">

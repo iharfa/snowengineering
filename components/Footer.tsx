@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const cols = [
   {
@@ -23,8 +24,16 @@ const cols = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-light-grey bg-charcoal text-white">
-      <div className="container-tech grid gap-10 py-12 md:grid-cols-4">
+    <footer className="relative overflow-hidden border-t border-light-grey bg-charcoal text-white">
+      <Image
+        src="/snow-mark.svg"
+        alt=""
+        aria-hidden
+        width={360}
+        height={360}
+        className="pointer-events-none absolute -bottom-24 right-4 opacity-[0.07]"
+      />
+      <div className="container-tech relative grid gap-10 py-12 md:grid-cols-4">
         <div className="md:col-span-2">
           <div className="font-heading text-lg font-bold">Snow Engineering</div>
           <p className="mt-3 max-w-sm text-sm text-light-grey">

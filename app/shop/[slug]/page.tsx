@@ -48,7 +48,7 @@ export default async function ProductPage({
             alt={product.name}
             fill
             sizes="(max-width:1024px) 100vw, 50vw"
-            className="object-contain p-8"
+            className="object-cover"
             priority
           />
         </div>

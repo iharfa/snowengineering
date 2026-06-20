@@ -12,7 +12,7 @@ export const products: Product[] = [
     shortDescription: "High-efficiency variable refrigerant flow outdoor condensing unit.",
     longDescription:
       "Inverter-driven VRF outdoor unit suited to resorts, offices, and institutional buildings. Supports long pipe runs and multiple indoor units with precise zone control and low part-load consumption.",
-    image: "/products/placeholder.svg",
+    image: "/products/commercial-vrf-outdoor-unit.jpg",
     specifications: [
       { label: "Capacity", value: "8–16 HP" },
       { label: "Refrigerant", value: "R410A" },
@@ -34,7 +34,7 @@ export const products: Product[] = [
     shortDescription: "Slim wall-mounted indoor unit for VRF zoned cooling.",
     longDescription:
       "Quiet wall-mounted indoor fan coil for VRF systems. Individual zone control, washable filter, and condensate management for tropical humidity.",
-    image: "/products/placeholder.svg",
+    image: "/products/wall-mounted-vrf-indoor-unit.jpg",
     specifications: [
       { label: "Capacity", value: "1.5–3.0 HP" },
       { label: "Airflow", value: "Up to 900 m³/h" },
@@ -56,7 +56,7 @@ export const products: Product[] = [
     shortDescription: "Compact reverse-osmosis plant for islands and small facilities.",
     longDescription:
       "Skid-mounted RO plant producing potable water from brackish or seawater feed. Stainless fittings, pre-filtration, and low-maintenance membranes built for island operation.",
-    image: "/products/placeholder.svg",
+    image: "/products/small-ro-water-plant.jpg",
     specifications: [
       { label: "Output", value: "1,000–5,000 L/day" },
       { label: "Feed", value: "Brackish / seawater" },
@@ -78,7 +78,7 @@ export const products: Product[] = [
     shortDescription: "Replacement pre-filter cartridge set for small water plants.",
     longDescription:
       "Sediment and carbon cartridge set for routine maintenance of small RO and filtration plants. Extends membrane life and maintains output quality.",
-    image: "/products/placeholder.svg",
+    image: "/products/water-plant-filter-cartridge-set.jpg",
     specifications: [
       { label: "Stages", value: "Sediment + carbon" },
       { label: "Micron", value: "5 / 1 micron" },
@@ -100,7 +100,7 @@ export const products: Product[] = [
     shortDescription: "Digital cold room controller with defrost and alarm management.",
     longDescription:
       "Microprocessor cold room controller managing compressor, fans, defrost cycles, and door switch. Configurable setpoints with high/low temperature alarms.",
-    image: "/products/placeholder.svg",
+    image: "/products/cold-room-controller.jpg",
     specifications: [
       { label: "Inputs", value: "2x NTC probe" },
       { label: "Relays", value: "Compressor / defrost / fan" },
@@ -122,7 +122,7 @@ export const products: Product[] = [
     shortDescription: "General-purpose digital temperature controller.",
     longDescription:
       "Panel-mount digital temperature controller for refrigeration and process cooling. Single relay output with adjustable differential and probe calibration.",
-    image: "/products/placeholder.svg",
+    image: "/products/digital-temperature-controller.jpg",
     specifications: [
       { label: "Range", value: "-50 to +99°C" },
       { label: "Probe", value: "NTC" },
@@ -144,7 +144,7 @@ export const products: Product[] = [
     shortDescription: "Thermostatic expansion valve for refrigeration circuits.",
     longDescription:
       "Thermostatic expansion valve (TXV) for precise refrigerant metering. Available for common refrigerants and capacities; interchangeable orifice options.",
-    image: "/products/placeholder.svg",
+    image: "/products/expansion-valve.jpg",
     specifications: [
       { label: "Type", value: "Thermostatic (TXV)" },
       { label: "Refrigerant", value: "R404A / R134a / R410A" },
@@ -166,7 +166,7 @@ export const products: Product[] = [
     shortDescription: "Refrigeration solenoid valve for liquid line control.",
     longDescription:
       "Normally-closed solenoid valve for refrigerant liquid line isolation. Includes coil; rated for standard refrigeration pressures.",
-    image: "/products/placeholder.svg",
+    image: "/products/solenoid-valve.jpg",
     specifications: [
       { label: "Action", value: "Normally closed" },
       { label: "Connection", value: "Solder ODF" },
@@ -188,7 +188,7 @@ export const products: Product[] = [
     shortDescription: "Power contactor for compressor switching.",
     longDescription:
       "Industrial contactor rated for compressor inrush and continuous duty. Auxiliary contacts available; DIN-rail mountable.",
-    image: "/products/placeholder.svg",
+    image: "/products/compressor-contactor.jpg",
     specifications: [
       { label: "Poles", value: "3" },
       { label: "Coil", value: "230V AC" },
@@ -210,7 +210,7 @@ export const products: Product[] = [
     shortDescription: "Condenser / evaporator fan motor replacement.",
     longDescription:
       "Shaded-pole / PSC fan motor for condenser and evaporator coils. Weatherized for tropical outdoor use; multiple mounting options.",
-    image: "/products/placeholder.svg",
+    image: "/products/fan-motor.jpg",
     specifications: [
       { label: "Power", value: "10–90 W" },
       { label: "Supply", value: "230V AC" },
@@ -232,7 +232,7 @@ export const products: Product[] = [
     shortDescription: "Refrigeration-grade copper pipe coil.",
     longDescription:
       "Dehydrated, capped refrigeration-grade copper tubing in coil form for pipe runs and repairs. Available in common diameters.",
-    image: "/products/placeholder.svg",
+    image: "/products/copper-pipe-coil.jpg",
     specifications: [
       { label: "Grade", value: "ACR refrigeration" },
       { label: "Diameter", value: "1/4\" – 7/8\"" },
@@ -254,7 +254,7 @@ export const products: Product[] = [
     shortDescription: "High/low pressure safety switch for refrigeration.",
     longDescription:
       "Dual high/low pressure switch protecting compressors from abnormal operating pressures. Adjustable setpoints with auto/manual reset options.",
-    image: "/products/placeholder.svg",
+    image: "/products/pressure-switch.jpg",
     specifications: [
       { label: "Type", value: "Dual HP/LP" },
       { label: "Reset", value: "Auto / manual" },
