@@ -7,6 +7,9 @@ import { z } from "zod";
 import { Loader2, Send, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea, Label } from "@/components/ui/input";
+import { Turnstile } from "@/components/Turnstile";
+
+const TURNSTILE_ON = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
 const schema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -21,6 +24,7 @@ export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle"
   );
+  const [token, setToken] = useState("");
   const {
     register,
     handleSubmit,
@@ -34,7 +38,7 @@ export function ContactForm() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify({ ...values, turnstileToken: token }),
       });
       if (!res.ok) throw new Error();
       setStatus("sent");
@@ -82,12 +86,16 @@ export function ContactForm() {
           placeholder="Describe your refrigeration, cooling, or spare parts requirement…"
         />
       </Field>
+      <Turnstile onToken={setToken} />
       {status === "error" && (
         <p className="text-sm" style={{ color: "#ba1a1a" }}>
           Could not send your message. Please email us directly.
         </p>
       )}
-      <Button type="submit" disabled={status === "sending"}>
+      <Button
+        type="submit"
+        disabled={status === "sending" || (TURNSTILE_ON && !token)}
+      >
         {status === "sending" ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : (

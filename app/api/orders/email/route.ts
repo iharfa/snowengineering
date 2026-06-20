@@ -3,8 +3,19 @@ import { orderPayloadSchema, buildOrderHtml } from "@/lib/order";
 import { cartTotals } from "@/lib/cart";
 import { erpnextConfigured, createWebsiteOrderInquiry } from "@/lib/erpnext";
 import { sendMail } from "@/lib/mailer";
+import { rateLimit, clientIp } from "@/lib/ratelimit";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 export async function POST(req: Request) {
+  const ip = clientIp(req);
+  const rl = rateLimit(`order:${ip}`, 5, 60_000);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfter) } }
+    );
+  }
+
   const parsed = orderPayloadSchema.safeParse(
     await req.json().catch(() => null)
   );
@@ -14,7 +25,14 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-  const { customer, items } = parsed.data;
+  const { customer, items, turnstileToken } = parsed.data;
+
+  if (!(await verifyTurnstile(turnstileToken, ip))) {
+    return NextResponse.json(
+      { error: "Verification failed" },
+      { status: 403 }
+    );
+  }
   const totals = cartTotals(items);
 
   // 1. Record inquiry in ERPNext (best effort).

@@ -39,6 +39,14 @@ of sending them.
 | `NEXT_PUBLIC_SNOW_WHATSAPP_NUMBER` | WhatsApp number for click-to-send orders (digits, intl format) |
 | `NEXT_PUBLIC_DEFAULT_GST_RATE` | Default GST rate %, default `8` |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` | SMTP for outbound email |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` | Optional Cloudflare Turnstile bot protection on the contact and order forms. Set both to enforce; leave blank to disable. |
+
+## Security
+
+- **Rate limiting** — all POST routes (`/api/price-reveal`, `/api/orders/email`, `/api/contact`) are rate limited per IP (in-memory, per serverless instance). For hard global limits, add Cloudflare rate-limiting rules or Upstash Redis — see `lib/ratelimit.ts`.
+- **Bot protection** — set the Turnstile keys above to require a challenge on form submissions. When unset, verification is skipped.
+- **Input caps** — all request fields have max-length validation (Zod).
+- ERPNext query filters are JSON+URL encoded (no filter injection); outbound emails escape user input; the Next image optimizer is restricted to local `/public` images.
 
 Anything prefixed `NEXT_PUBLIC_` is exposed to the browser. ERPNext and SMTP
 credentials are **server-side only** and never reach the client.

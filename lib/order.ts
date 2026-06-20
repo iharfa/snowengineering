@@ -4,31 +4,32 @@ import { cartTotals } from "@/lib/cart";
 import { formatMVR } from "@/lib/utils";
 
 export const customerSchema = z.object({
-  name: z.string().min(2, "Name is required"),
-  company: z.string().optional(),
-  phone: z.string().min(5, "Phone is required"),
-  email: z.string().email("Valid email required"),
-  location: z.string().min(2, "Island / delivery location is required"),
+  name: z.string().min(2, "Name is required").max(120),
+  company: z.string().max(160).optional(),
+  phone: z.string().min(5, "Phone is required").max(40),
+  email: z.string().email("Valid email required").max(200),
+  location: z.string().min(2, "Island / delivery location is required").max(160),
   preferredContact: z.enum(["Email", "WhatsApp", "Phone"]),
-  orderNotes: z.string().optional(),
+  orderNotes: z.string().max(2000).optional(),
 });
 
 export type Customer = z.infer<typeof customerSchema>;
 
 const cartItemSchema = z.object({
-  id: z.string(),
-  slug: z.string(),
-  name: z.string(),
-  erpnextItemCode: z.string(),
-  quantity: z.number().int().positive(),
-  price: z.number().nullable(),
-  currency: z.string(),
-  gstRate: z.number(),
+  id: z.string().max(100),
+  slug: z.string().max(120),
+  name: z.string().max(200),
+  erpnextItemCode: z.string().max(100),
+  quantity: z.number().int().positive().max(9999),
+  price: z.number().nonnegative().nullable(),
+  currency: z.string().max(8),
+  gstRate: z.number().min(0).max(100),
 });
 
 export const orderPayloadSchema = z.object({
   customer: customerSchema,
-  items: z.array(cartItemSchema).min(1, "Cart is empty"),
+  items: z.array(cartItemSchema).min(1, "Cart is empty").max(200),
+  turnstileToken: z.string().max(2048).optional(),
 });
 
 export type OrderPayload = z.infer<typeof orderPayloadSchema>;

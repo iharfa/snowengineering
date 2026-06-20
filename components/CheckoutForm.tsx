@@ -9,12 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Input, Textarea, Select, Label } from "@/components/ui/input";
 import { useCart } from "@/components/CartProvider";
 import { WhatsAppOrderButton } from "@/components/WhatsAppOrderButton";
+import { Turnstile } from "@/components/Turnstile";
 import { customerSchema, type Customer } from "@/lib/order";
+
+const TURNSTILE_ON = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
 export function CheckoutForm() {
   const router = useRouter();
   const { items, clear } = useCart();
   const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
+  const [token, setToken] = useState("");
 
   const {
     register,
@@ -32,7 +36,7 @@ export function CheckoutForm() {
       const res = await fetch("/api/orders/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customer, items }),
+        body: JSON.stringify({ customer, items, turnstileToken: token }),
       });
       if (!res.ok) throw new Error();
       clear();
@@ -77,6 +81,8 @@ export function CheckoutForm() {
         />
       </Field>
 
+      <Turnstile onToken={setToken} />
+
       {status === "error" && (
         <p className="text-sm" style={{ color: "#ba1a1a" }}>
           Could not send the email order. Please try WhatsApp or contact us
@@ -85,7 +91,11 @@ export function CheckoutForm() {
       )}
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <Button type="submit" disabled={disabled || status === "sending"} className="flex-1">
+        <Button
+          type="submit"
+          disabled={disabled || status === "sending" || (TURNSTILE_ON && !token)}
+          className="flex-1"
+        >
           {status === "sending" ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
