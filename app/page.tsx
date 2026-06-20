@@ -85,20 +85,19 @@ export default function HomePage() {
               <Button variant="secondary">Explore fisheries services</Button>
             </Link>
           </div>
-          <div className="grid-bg rounded-lg border border-white/10 p-8">
-            <ul className="space-y-3 text-sm">
-              {[
-                "Ice plant capacity sizing for catch volumes",
-                "RSW systems for vessel hold chilling",
-                "Seawater cooling loops and heat rejection",
-                "Cold rooms and blast freezing for processing",
-              ].map((line) => (
-                <li key={line} className="flex items-start gap-3">
-                  <Snowflake className="mt-0.5 h-4 w-4 flex-shrink-0 text-accent" />
-                  <span className="text-light-grey">{line}</span>
-                </li>
-              ))}
-            </ul>
+          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10">
+            {[
+              { icon: Snowflake, title: "Ice Plants", text: "Capacity sizing for catch volumes" },
+              { icon: Ship, title: "RSW Systems", text: "Vessel hold chilling" },
+              { icon: Droplets, title: "Seawater Cooling", text: "Loops and heat rejection" },
+              { icon: ThermometerSnowflake, title: "Cold Storage", text: "Cold rooms and blast freezing" },
+            ].map((t) => (
+              <div key={t.title} className="grid-bg flex flex-col gap-2 bg-charcoal p-6">
+                <t.icon className="h-6 w-6 text-accent" strokeWidth={2} />
+                <div className="font-heading font-semibold text-white">{t.title}</div>
+                <p className="text-sm text-light-grey">{t.text}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

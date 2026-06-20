@@ -6,16 +6,8 @@ export function Hero() {
   return (
     <section className="relative overflow-hidden border-b border-light-grey bg-white">
       <div className="grid-bg absolute inset-0" aria-hidden />
-      <Image
-        src="/snow-mark.svg"
-        alt=""
-        aria-hidden
-        width={420}
-        height={420}
-        className="pointer-events-none absolute -right-16 -top-20 hidden opacity-[0.06] md:block"
-      />
-      <div className="container-tech relative py-16 md:py-24">
-        <div className="max-w-3xl">
+      <div className="container-tech relative grid items-center gap-10 py-14 md:py-20 lg:grid-cols-2 lg:gap-16">
+        <div>
           <span className="label-mono text-primary">
             Refrigeration &amp; Cooling Engineering · Maldives
           </span>
@@ -23,7 +15,7 @@ export function Hero() {
             Refrigeration Engineering for Fisheries, Cold Chain, and Industrial
             Cooling
           </h1>
-          <p className="mt-5 max-w-2xl accent-line text-base text-on-surface-variant md:text-lg">
+          <p className="mt-5 accent-line text-base text-on-surface-variant md:text-lg">
             Design, installation, troubleshooting, and spare parts sourcing for
             ice plants, RSW systems, VRFs, and cooling infrastructure in the
             Maldives.
@@ -37,6 +29,35 @@ export function Hero() {
                 Browse Products
               </Button>
             </Link>
+          </div>
+        </div>
+
+        <div className="relative">
+          <Image
+            src="/snow-mark.svg"
+            alt=""
+            aria-hidden
+            width={300}
+            height={300}
+            className="pointer-events-none absolute -right-10 -top-12 hidden opacity-[0.07] lg:block"
+          />
+          <div className="relative aspect-[4/3] overflow-hidden rounded-lg border border-light-grey shadow-subtle">
+            <Image
+              src="/products/commercial-vrf-outdoor-unit.jpg"
+              alt="Industrial refrigeration condensing units"
+              fill
+              sizes="(max-width:1024px) 100vw, 50vw"
+              className="object-cover"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-charcoal/70 via-transparent to-transparent" />
+            <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-x-4 gap-y-1">
+              {["ICE PLANTS", "RSW", "VRF", "COLD CHAIN"].map((t) => (
+                <span key={t} className="font-mono text-[11px] font-medium tracking-[0.05em] text-white/90">
+                  {t}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
