@@ -13,6 +13,7 @@ const buttonVariants = cva(
         ghost: "text-charcoal hover:bg-light-grey/40",
         outline:
           "border border-light-grey bg-white text-charcoal hover:border-primary hover:text-primary",
+        danger: "bg-[#ba1a1a] text-white hover:bg-[#990010] shadow-subtle",
       },
       size: {
         default: "h-11 px-5 py-2",
