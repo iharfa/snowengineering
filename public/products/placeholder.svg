@@ -1,0 +1,13 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Product image coming soon">
+  <rect width="400" height="400" fill="#F7FAFC"/>
+  <g stroke="#D0D0D0" stroke-width="1">
+    <path d="M0 100H400M0 200H400M0 300H400M100 0V400M200 0V400M300 0V400"/>
+  </g>
+  <g stroke="#9AD8F0" stroke-width="3" stroke-linecap="square" transform="translate(200 180)">
+    <line x1="0" y1="-46" x2="0" y2="46"/>
+    <line x1="-46" y1="0" x2="46" y2="0"/>
+    <line x1="-33" y1="-33" x2="33" y2="33"/>
+    <line x1="33" y1="-33" x2="-33" y2="33"/>
+  </g>
+  <text x="200" y="290" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" letter-spacing="2" fill="#808080">IMAGE ON REQUEST</text>
+</svg>

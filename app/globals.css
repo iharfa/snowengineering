@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --on-surface-variant: #3f4850;
+}
+
+body {
+  @apply bg-background text-charcoal font-sans antialiased;
+}
+
+@layer components {
+  /* Technical card: white, light-grey border, blue top accent */
+  .tech-card {
+    @apply rounded-lg border border-light-grey bg-white;
+    border-top: 2px solid #0090d0;
+  }
+
+  /* Subtle 24px engineering grid overlay */
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(208, 208, 208, 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(208, 208, 208, 0.12) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* Blue accent line to the left of intro paragraphs / headers */
+  .accent-line {
+    @apply border-l-2 border-primary pl-4;
+  }
+
+  .container-tech {
+    @apply mx-auto w-full max-w-[1280px] px-5 sm:px-8;
+  }
+
+  .label-mono {
+    @apply font-mono text-[11px] font-medium uppercase tracking-[0.05em] text-steel;
+  }
+}
