@@ -137,8 +137,11 @@ server console — useful for local development.
 ## WhatsApp setup
 
 Set `NEXT_PUBLIC_SNOW_WHATSAPP_NUMBER` to the destination number in
-international format (digits only, e.g. `9607777777`). Orders use a `wa.me`
-click-to-send deep link — no messages are sent server-side.
+international format (digits only; defaults to `9609690600`). Orders use a
+`wa.me` click-to-send deep link — no messages are sent server-side. Each
+message is clearly marked as coming from the website order form and carries a
+`WEB-<id>` reference matching the order in `/admin` → Orders, so incoming
+WhatsApp orders are easy to recognise and cross-check before replying.
 
 ## Branding
 

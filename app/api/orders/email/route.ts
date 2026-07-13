@@ -109,8 +109,12 @@ export async function POST(req: Request) {
         subject: `New ${channel} Order Inquiry from ${customer.name.replace(
           /[\r\n]/g,
           " "
-        )}`,
-        html: buildOrderHtml(customer, items),
+        )}${orderId != null ? ` [WEB-${orderId}]` : ""}`,
+        html: buildOrderHtml(
+          customer,
+          items,
+          orderId != null ? `WEB-${orderId}` : undefined
+        ),
       });
     } catch (e) {
       console.error("send order email failed", e);

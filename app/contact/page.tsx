@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     "Contact Snow Engineering for refrigeration consultancy, ice plant and RSW systems, troubleshooting, and spare parts sourcing in the Maldives.",
 };
 
-const wa = process.env.NEXT_PUBLIC_SNOW_WHATSAPP_NUMBER || "9607777777";
+const wa = process.env.NEXT_PUBLIC_SNOW_WHATSAPP_NUMBER || "9609690600";
 const email = "sales@snowengineering.mv";
 
 export default function ContactPage() {

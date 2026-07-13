@@ -7,7 +7,7 @@ import { useCart } from "@/components/CartProvider";
 import { whatsappLink, type Customer } from "@/lib/order";
 import type { CartItem } from "@/lib/types";
 
-const WHATSAPP = process.env.NEXT_PUBLIC_SNOW_WHATSAPP_NUMBER || "9607777777";
+const WHATSAPP = process.env.NEXT_PUBLIC_SNOW_WHATSAPP_NUMBER || "9609690600";
 
 export function WhatsAppOrderButton({
   items,
@@ -25,29 +25,49 @@ export function WhatsAppOrderButton({
   const router = useRouter();
   const { clear } = useCart();
 
-  function send() {
+  async function send() {
     if (!validate()) {
       alert("Please complete the required fields before sending by WhatsApp.");
       return;
     }
     const customer = getCustomer();
 
-    // Log the inquiry for sales tracking (best effort — the WhatsApp message
-    // itself is the customer-facing channel, so never block on this).
-    fetch("/api/orders/email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customer,
-        items,
-        turnstileToken,
-        via: "whatsapp",
-      }),
-      keepalive: true,
-    }).catch(() => {});
+    // Open the window synchronously (inside the click gesture) so popup
+    // blockers allow it; the URL is filled in after the order is logged.
+    const win = window.open("", "_blank", "noopener");
 
-    const url = whatsappLink(WHATSAPP, customer, items);
-    window.open(url, "_blank", "noopener");
+    // Log the inquiry for sales tracking and grab its reference so the
+    // WhatsApp message can be matched to the admin record. Waits briefly;
+    // the message is sent with or without the reference.
+    let ref: string | undefined;
+    try {
+      const res = await Promise.race([
+        fetch("/api/orders/email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            customer,
+            items,
+            turnstileToken,
+            via: "whatsapp",
+          }),
+          keepalive: true,
+        }).then((r) => (r.ok ? r.json() : null)),
+        // generous timeout: serverless cold starts can take a few seconds,
+        // and the reference is worth a short wait on the open blank tab
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000)),
+      ]);
+      if (res?.orderId != null) ref = `WEB-${res.orderId}`;
+    } catch {
+      // logging is best effort; the WhatsApp message is the primary channel
+    }
+
+    const url = whatsappLink(WHATSAPP, customer, items, ref);
+    if (win) {
+      win.location.href = url;
+    } else {
+      window.location.href = url;
+    }
     clear();
     router.push("/thank-you?via=whatsapp");
   }
