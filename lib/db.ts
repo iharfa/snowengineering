@@ -15,8 +15,14 @@ import fs from "fs";
 import { createClient, type Client } from "@libsql/client";
 import type { CartItem } from "@/lib/types";
 
-const URL = process.env.DATABASE_URL || "file:data/snow.db";
-const AUTH_TOKEN = process.env.DATABASE_AUTH_TOKEN;
+// TURSO_* names are what the Vercel <-> Turso integration injects; DATABASE_*
+// are the generic names. Either works.
+const URL =
+  process.env.DATABASE_URL ||
+  process.env.TURSO_DATABASE_URL ||
+  "file:data/snow.db";
+const AUTH_TOKEN =
+  process.env.DATABASE_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN;
 
 const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS orders (
