@@ -14,11 +14,13 @@ export function WhatsAppOrderButton({
   getCustomer,
   validate,
   disabled,
+  turnstileToken,
 }: {
   items: CartItem[];
   getCustomer: () => Customer;
   validate: () => boolean;
   disabled?: boolean;
+  turnstileToken?: string;
 }) {
   const router = useRouter();
   const { clear } = useCart();
@@ -28,7 +30,23 @@ export function WhatsAppOrderButton({
       alert("Please complete the required fields before sending by WhatsApp.");
       return;
     }
-    const url = whatsappLink(WHATSAPP, getCustomer(), items);
+    const customer = getCustomer();
+
+    // Log the inquiry for sales tracking (best effort — the WhatsApp message
+    // itself is the customer-facing channel, so never block on this).
+    fetch("/api/orders/email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customer,
+        items,
+        turnstileToken,
+        via: "whatsapp",
+      }),
+      keepalive: true,
+    }).catch(() => {});
+
+    const url = whatsappLink(WHATSAPP, customer, items);
     window.open(url, "_blank", "noopener");
     clear();
     router.push("/thank-you?via=whatsapp");

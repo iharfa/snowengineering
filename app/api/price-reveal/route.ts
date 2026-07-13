@@ -2,13 +2,12 @@ import { NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { z } from "zod";
 import { getProductByCode } from "@/data/products";
-import {
-  erpnextConfigured,
-  getItemPrice,
-  createPriceRevealLog,
-} from "@/lib/erpnext";
+import { erpnextConfigured, createPriceRevealLog } from "@/lib/erpnext";
+import { resolveProductPrice } from "@/lib/order-server";
+import { insertPriceReveal } from "@/lib/db";
 import { DEFAULT_GST_RATE } from "@/lib/utils";
 import { rateLimit, clientIp } from "@/lib/ratelimit";
+import { readJsonBody, sameOriginOk } from "@/lib/security";
 
 const schema = z.object({
   productId: z.string().max(100),
@@ -22,6 +21,9 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
+  if (!sameOriginOk(req)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   const ip = clientIp(req);
   const rl = await rateLimit(`reveal:${ip}`, 30, 60_000);
   if (!rl.ok) {
@@ -31,7 +33,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const parsed = schema.safeParse(await req.json().catch(() => null));
+  const parsed = schema.safeParse(await readJsonBody(req, 8 * 1024));
   if (!parsed.success) {
     return NextResponse.json(
       { error: "Invalid request", issues: parsed.error.flatten() },
@@ -40,27 +42,46 @@ export async function POST(req: Request) {
   }
   const data = parsed.data;
 
+  // Only catalog products can be priced — this endpoint must not let callers
+  // read arbitrary ERPNext item prices by guessing item codes.
   const seed = getProductByCode(data.itemCode);
-  const gstRate = seed?.gstRate ?? DEFAULT_GST_RATE;
-  const currency = seed?.currency ?? "MVR";
+  if (!seed) {
+    return NextResponse.json({ error: "Unknown product" }, { status: 404 });
+  }
+  const gstRate = seed.gstRate ?? DEFAULT_GST_RATE;
+  const currency = seed.currency ?? "MVR";
 
-  // Live ERPNext price if configured, else local seed fallback.
-  let price: number | null = null;
-  if (erpnextConfigured) price = await getItemPrice(data.itemCode);
-  if (price == null) price = seed?.price ?? null;
-
+  // Admin override → live ERPNext price → seed fallback.
+  const price = await resolveProductPrice(seed);
   if (price == null) {
     return NextResponse.json({ error: "Price unavailable" }, { status: 404 });
   }
 
-  // Fire-and-forget audit log; never block the response on it.
+  // Audit log: local DB always; ERPNext mirror best-effort. Never block the
+  // response on either.
   const ipHash = createHash("sha256").update(ip).digest("hex").slice(0, 32);
+  const category = data.category === "cart" ? "cart" : seed.category;
+  try {
+    await insertPriceReveal({
+      item_code: seed.erpnextItemCode,
+      product_name: seed.name,
+      category,
+      session_id: data.sessionId,
+      user_agent: data.userAgent,
+      referrer: data.referrer,
+      ip_hash: ipHash,
+    });
+  } catch (e) {
+    console.error("local reveal log failed", e);
+  }
   if (erpnextConfigured) {
     createPriceRevealLog({
-      product_id: data.productId,
-      item_code: data.itemCode,
-      product_name: data.productName,
-      category: data.category,
+      // Identity fields come from the catalog, not the request body. "cart"
+      // is kept as a category marker for reveals made from the cart page.
+      product_id: seed.id,
+      item_code: seed.erpnextItemCode,
+      product_name: seed.name,
+      category,
       timestamp: data.timestamp,
       session_id: data.sessionId,
       user_agent: data.userAgent,

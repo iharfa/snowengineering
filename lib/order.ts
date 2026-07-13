@@ -30,6 +30,9 @@ export const orderPayloadSchema = z.object({
   customer: customerSchema,
   items: z.array(cartItemSchema).min(1, "Cart is empty").max(200),
   turnstileToken: z.string().max(2048).optional(),
+  // Which channel the customer used. WhatsApp orders are logged for sales
+  // tracking; the WhatsApp message itself is the customer-facing channel.
+  via: z.enum(["email", "whatsapp"]).default("email"),
 });
 
 export type OrderPayload = z.infer<typeof orderPayloadSchema>;

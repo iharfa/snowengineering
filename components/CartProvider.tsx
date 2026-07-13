@@ -50,9 +50,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const setQty: CartCtx["setQty"] = (id, qty) =>
     setItems((prev) =>
-      prev
-        .map((i) => (i.id === id ? { ...i, quantity: Math.max(1, qty) } : i))
-        .filter((i) => i.quantity > 0)
+      prev.map((i) => (i.id === id ? { ...i, quantity: Math.max(1, qty) } : i))
     );
 
   const setPrice: CartCtx["setPrice"] = (id, price, gstRate) =>

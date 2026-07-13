@@ -119,8 +119,13 @@ function PriceCell({
           sessionId: "cart",
         }),
       });
+      if (!res.ok) return;
       const data = await res.json();
-      onReveal(item.id, data.price, data.gstRate);
+      // Guard against storing a non-numeric price in the cart — a poisoned
+      // price would make the order payload fail validation later.
+      if (typeof data.price === "number" && typeof data.gstRate === "number") {
+        onReveal(item.id, data.price, data.gstRate);
+      }
     } finally {
       setLoading(false);
     }

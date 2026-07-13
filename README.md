@@ -3,7 +3,13 @@
 Production-ready Next.js site for **Snow Engineering**, a Maldives-based
 refrigeration and engineering consultancy. Consultancy pages plus a lightweight
 product catalog with a price-reveal flow, cart, and email/WhatsApp order
-inquiries. Backend ERP is ERPNext; deployment target is Vercel.
+inquiries.
+
+Sales tracking is built in: every order, lead, and price reveal is stored in a
+**local SQLite database** (`data/snow.db`), managed through a password-protected
+**admin dashboard at `/admin`** (order pipeline, leads, price/stock editing,
+demand analytics). ERPNext remains an optional full-ERP mirror on top, and
+email remains a notification channel.
 
 ## Stack
 
@@ -32,6 +38,9 @@ of sending them.
 
 | Variable | Purpose |
 |---|---|
+| `ADMIN_PASSWORD` | Enables the `/admin` dashboard (orders, leads, products). Unset = admin locked |
+| `DATABASE_URL` | libSQL/SQLite database. Default `file:data/snow.db` (local file). For Vercel set a Turso URL (`libsql://…`) |
+| `DATABASE_AUTH_TOKEN` | Turso auth token (only needed with a `libsql://` URL) |
 | `ERPNEXT_BASE_URL` | ERPNext instance URL (e.g. `https://erp.example.com`) |
 | `ERPNEXT_API_KEY` / `ERPNEXT_API_SECRET` | Token auth: `Authorization: token KEY:SECRET` |
 | `ERPNEXT_PRICE_LIST` | Price list to read item prices from (default `Standard Selling`) |
@@ -46,11 +55,48 @@ of sending them.
 
 - **Rate limiting** — all POST routes (`/api/price-reveal` 30/min, `/api/orders/email` and `/api/contact` 5/min per IP). Uses Upstash Redis for global durable limits when configured; otherwise per-instance in-memory (see `lib/ratelimit.ts`). On Vercel, in-memory limits are best-effort only — add the Upstash integration for real global enforcement.
 - **Bot protection** — set the Turnstile keys above to require a challenge on form submissions. When unset, verification is skipped. Turnstile is the primary defense for the email/lead forms and works regardless of where the site is hosted.
-- **Input caps** — all request fields have max-length validation (Zod).
+- **Input caps** — all request fields have max-length validation (Zod), request bodies are size-capped (64 KB orders/contact, 8 KB price reveals) before parsing, and duplicate cart lines are merged server-side so one request can't fan out into hundreds of upstream price lookups.
+- **Cross-site request rejection** — the public POST APIs reject requests whose `Origin`/`Sec-Fetch-Site` headers indicate another site (CSRF/abuse speed bump). Server actions are protected by Next.js's built-in origin check.
+- **Content-Security-Policy** — scripts/frames/connections restricted to self + Cloudflare Turnstile; `object-src 'none'`, `frame-ancestors 'none'`, `form-action 'self'`. `X-Powered-By` is disabled.
+- **Server-side pricing** — order submissions are re-priced on the server (live ERPNext price or seed fallback, matched by `erpnextItemCode`). Client-supplied prices, names, and GST rates are never trusted; unknown item codes are rejected. `/api/price-reveal` only answers for catalog products, so ERPNext item prices cannot be enumerated by code guessing.
+- **Delivery guarantees** — in production, order and contact submissions fail with a visible error unless at least one channel (ERPNext record or email) captured them; the cart is preserved so the customer can retry. WhatsApp orders are also logged to ERPNext (source `Website WhatsApp`) so sales tracking covers both channels.
+- **Admin auth** — `/admin` uses an HttpOnly session cookie signed (HMAC) with `ADMIN_PASSWORD`, carrying a server-enforced 7-day expiry; rotating the password invalidates all sessions. Login attempts are rate-limited (10/min per IP) and password comparison is timing-safe. Admin pages are `noindex` and every mutating action re-checks the session.
 - ERPNext query filters are JSON+URL encoded (no filter injection); outbound emails escape user input; the Next image optimizer is restricted to local `/public` images.
 
 Anything prefixed `NEXT_PUBLIC_` is exposed to the browser. ERPNext and SMTP
 credentials are **server-side only** and never reach the client.
+
+## Database & admin dashboard
+
+Orders, contact leads, and price-reveal analytics are recorded in a
+libSQL/SQLite database. No setup needed locally — it defaults to the file
+`data/snow.db`, tables are created automatically on first use, and everything
+degrades gracefully if the database is unavailable.
+
+Set `ADMIN_PASSWORD` and open **`/admin`** to use the built-in backend:
+
+- **Dashboard** — open orders, pipeline value, new leads, reveal analytics.
+- **Orders** — every order inquiry (email _and_ WhatsApp) with a status
+  pipeline: Open → Quoted → Confirmed → Closed / Cancelled.
+- **Leads** — contact-form submissions with New / Contacted / Closed statuses.
+- **Products** — override price and stock per item without a code deploy.
+  Price precedence everywhere: admin override → live ERPNext → seed catalog.
+
+Back up `data/snow.db` regularly when running on a file (it is one file;
+copying it is a full backup). Turso has built-in point-in-time restore.
+
+**Free hosting (Vercel + Turso):** Vercel's filesystem is ephemeral, so use
+[Turso](https://turso.tech) — a hosted libSQL/SQLite service with a free tier
+(hundreds of databases, multi-GB storage, no card required):
+
+1. `turso db create snow-engineering` (or create it in the Turso dashboard)
+2. `turso db tokens create snow-engineering`
+3. In Vercel → Settings → Environment Variables set
+   `DATABASE_URL=libsql://<your-db>.turso.io` and
+   `DATABASE_AUTH_TOKEN=<token>`
+
+The same code runs unchanged in both modes; only the env vars differ. On a
+VPS or any host with a persistent disk, skip Turso and keep the local file.
 
 ## ERPNext setup
 

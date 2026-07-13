@@ -11,7 +11,9 @@ export async function sendMail(opts: {
   replyTo?: string;
 }) {
   if (!smtpConfigured) {
-    console.warn("SMTP not configured — email not sent:", opts.subject);
+    console.warn(
+      `SMTP not configured — email not sent: ${opts.subject}\n${opts.html}`
+    );
     return false;
   }
   const transport = nodemailer.createTransport({

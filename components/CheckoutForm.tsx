@@ -109,7 +109,8 @@ export function CheckoutForm() {
           validate={() =>
             customerSchema.safeParse(getValues()).success
           }
-          disabled={disabled}
+          disabled={disabled || (TURNSTILE_ON && !token)}
+          turnstileToken={token}
         />
       </div>
       <p className="label-mono normal-case tracking-normal text-steel">

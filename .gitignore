@@ -4,6 +4,14 @@
 /build
 .env
 .env*.local
+
+# Local SQLite database (orders, leads, analytics) — never commit business data
+/data/*.db
+/data/*.db-shm
+/data/*.db-wal
+
+# Local tooling
+/.claude/
 .DS_Store
 *.tsbuildinfo
 next-env.d.ts
