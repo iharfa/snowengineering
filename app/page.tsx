@@ -15,8 +15,11 @@ import { ServiceCard } from "@/components/ServiceCard";
 import { ProductCard } from "@/components/ProductCard";
 import { ProjectCard } from "@/components/ProjectCard";
 import { Button } from "@/components/ui/button";
-import { products } from "@/data/products";
+import { getCatalog } from "@/lib/catalog";
 import { sampleProjects } from "@/data/projects";
+
+// Featured products come from the database-managed catalog.
+export const dynamic = "force-dynamic";
 
 const trust = [
   { icon: ShieldCheck, title: "10+ years in the field", text: "Refrigeration engineering across the Maldivian fisheries and resort sectors." },
@@ -32,8 +35,8 @@ const servicePreview = [
   { icon: Gauge, title: "Troubleshooting & Spares", description: "Diagnosis, repair, and sourcing of parts to keep systems running." },
 ];
 
-export default function HomePage() {
-  const featured = products.slice(0, 4);
+export default async function HomePage() {
+  const featured = (await getCatalog()).slice(0, 4);
 
   return (
     <>

@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { Plus, Check } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RevealPriceButton } from "@/components/RevealPriceButton";
+import { ProductImage } from "@/components/ProductImage";
 import { useCart } from "@/components/CartProvider";
 import type { Product } from "@/lib/types";
 
@@ -34,12 +34,10 @@ export function ProductCard({ product }: { product: Product }) {
     <div className="tech-card flex flex-col overflow-hidden">
       <Link href={`/shop/${product.slug}`} className="block">
         <div className="relative aspect-square bg-background">
-          <Image
+          <ProductImage
             src={product.image}
             alt={product.name}
-            fill
             sizes="(max-width:768px) 100vw, 25vw"
-            className="object-cover"
           />
         </div>
       </Link>

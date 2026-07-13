@@ -1,8 +1,6 @@
-export type ProductCategory =
-  | "VRFs"
-  | "Small Water Plants"
-  | "Spare Parts"
-  | "Controllers";
+// Categories are free-form now that products are managed from the admin;
+// these are the defaults used by the seed catalog.
+export type ProductCategory = string;
 
 export interface Product {
   id: string;

@@ -17,7 +17,7 @@ export default async function AdminLayout({
 
   return (
     <div className="container-tech py-8">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-light-grey pb-4">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-light-grey pb-4 print:hidden">
         <div className="flex items-center gap-3">
           <h1 className="font-heading text-xl font-bold text-charcoal">
             Snow Engineering — Admin
@@ -31,6 +31,12 @@ export default async function AdminLayout({
             </Link>
             <Link href="/admin/orders" className="text-steel hover:text-primary">
               Orders
+            </Link>
+            <Link href="/admin/invoices" className="text-steel hover:text-primary">
+              Invoices
+            </Link>
+            <Link href="/admin/tax" className="text-steel hover:text-primary">
+              Tax
             </Link>
             <Link href="/admin/leads" className="text-steel hover:text-primary">
               Leads

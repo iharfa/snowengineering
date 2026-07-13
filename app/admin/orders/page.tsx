@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/admin-auth";
 import { listOrders, ORDER_STATUSES } from "@/lib/db";
-import { setOrderStatusAction } from "@/app/admin/actions";
+import {
+  createInvoiceFromOrderAction,
+  setOrderStatusAction,
+} from "@/app/admin/actions";
 import { formatMVR } from "@/lib/utils";
 import type { CartItem } from "@/lib/types";
 
@@ -86,6 +89,12 @@ export default async function AdminOrdersPage() {
                       </select>
                       <button className="text-xs text-steel underline hover:text-primary">
                         Save
+                      </button>
+                    </form>
+                    <form action={createInvoiceFromOrderAction} className="mt-1.5">
+                      <input type="hidden" name="order_id" value={o.id} />
+                      <button className="text-xs text-steel underline hover:text-primary">
+                        Create invoice
                       </button>
                     </form>
                   </td>

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { Minus, Plus, Trash2, Eye } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/components/CartProvider";
@@ -27,13 +26,18 @@ export function CartSummary() {
     <ul className="space-y-3">
       {items.map((item) => (
         <li key={item.id} className="tech-card flex gap-4 p-4">
-          <div className="relative h-20 w-20 flex-shrink-0 rounded bg-background">
-            <Image
+          <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded bg-background">
+            {/* plain img: admin-added products may not have a /products/<slug>.jpg */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={`/products/${item.slug}.jpg`}
               alt={item.name}
-              fill
-              sizes="80px"
-              className="object-cover"
+              loading="lazy"
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = "/products/placeholder.svg";
+                e.currentTarget.onerror = null;
+              }}
             />
           </div>
           <div className="flex flex-1 flex-col">

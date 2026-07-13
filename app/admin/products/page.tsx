@@ -1,96 +1,94 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/admin-auth";
-import { listProductOverrides } from "@/lib/db";
-import { products } from "@/data/products";
-import { saveProductOverrideAction } from "@/app/admin/actions";
+import { dbListProducts } from "@/lib/db";
+import { setProductActiveAction } from "@/app/admin/actions";
+import { Button } from "@/components/ui/button";
 import { formatMVR } from "@/lib/utils";
-
-const STOCK_OPTIONS = ["In Stock", "Made to Order", "On Request"];
 
 // Live business data + cookie auth — never prerender.
 export const dynamic = "force-dynamic";
 
 export default async function AdminProductsPage() {
   if (!(await isAdmin())) redirect("/admin/login");
+  const products = await dbListProducts(true);
 
-  const overrides = new Map(
-    (await listProductOverrides()).map((o) => [o.item_code, o])
-  );
+  if (!products) {
+    return (
+      <div className="tech-card p-8">
+        <p className="text-sm" style={{ color: "#ba1a1a" }}>
+          The database is unavailable, so products cannot be managed right now.
+          The shop is serving the built-in seed catalog.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="tech-card p-6">
-      <h2 className="font-heading text-lg font-semibold text-charcoal">
-        Products — price &amp; stock
-      </h2>
-      <p className="mt-1 text-sm text-on-surface-variant">
-        Overrides set here take effect immediately on the shop (price reveals
-        and order pricing) without a code deploy. Leave a field blank to fall
-        back to ERPNext / the seed catalog. Descriptions and images are edited
-        in <code className="font-mono">data/products.ts</code>.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="font-heading text-lg font-semibold text-charcoal">
+            Products
+          </h2>
+          <p className="mt-1 text-sm text-on-surface-variant">
+            Changes take effect on the shop immediately. Archived products stay
+            on past orders and invoices but disappear from the shop.
+          </p>
+        </div>
+        <Link href="/admin/products/new">
+          <Button size="sm">+ Add product</Button>
+        </Link>
+      </div>
       <div className="mt-4 overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="label-mono border-b border-light-grey">
               <th className="py-2 pr-4">Product</th>
               <th className="py-2 pr-4">Item code</th>
-              <th className="py-2 pr-4">Seed price</th>
-              <th className="py-2 pr-4">Override price (MVR)</th>
+              <th className="py-2 pr-4">Category</th>
+              <th className="py-2 pr-4">Price</th>
+              <th className="py-2 pr-4">GST</th>
               <th className="py-2 pr-4">Stock</th>
               <th className="py-2"></th>
             </tr>
           </thead>
           <tbody>
-            {products.map((p) => {
-              const o = overrides.get(p.erpnextItemCode);
-              return (
-                <tr key={p.id} className="border-b border-light-grey/60">
-                  <td className="py-2 pr-4 text-charcoal">{p.name}</td>
-                  <td className="py-2 pr-4 font-mono text-xs">
-                    {p.erpnextItemCode}
-                  </td>
-                  <td className="py-2 pr-4 font-mono text-xs">
-                    {formatMVR(p.price, p.currency)}
-                  </td>
-                  <td className="py-2 pr-4" colSpan={3}>
-                    <form
-                      action={saveProductOverrideAction}
-                      className="flex flex-wrap items-center gap-2"
+            {products.map((p) => (
+              <tr
+                key={p.erpnextItemCode}
+                className={`border-b border-light-grey/60 ${p.active ? "" : "opacity-50"}`}
+              >
+                <td className="py-2 pr-4 text-charcoal">
+                  {p.name}
+                  {!p.active && <span className="label-mono ml-2">archived</span>}
+                </td>
+                <td className="py-2 pr-4 font-mono text-xs">{p.erpnextItemCode}</td>
+                <td className="py-2 pr-4 text-xs">{p.category}</td>
+                <td className="py-2 pr-4 font-mono text-xs">
+                  {formatMVR(p.price, p.currency)}
+                </td>
+                <td className="py-2 pr-4 font-mono text-xs">{p.gstRate}%</td>
+                <td className="py-2 pr-4 text-xs">{p.stockStatus}</td>
+                <td className="py-2">
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href={`/admin/products/${p.erpnextItemCode}`}
+                      className="text-xs text-steel underline hover:text-primary"
                     >
-                      <input
-                        type="hidden"
-                        name="item_code"
-                        value={p.erpnextItemCode}
-                      />
-                      <input
-                        type="number"
-                        name="price"
-                        min={0}
-                        step="0.01"
-                        defaultValue={o?.price ?? ""}
-                        placeholder="—"
-                        className="h-8 w-32 rounded border border-light-grey bg-background px-2 font-mono text-xs"
-                      />
-                      <select
-                        name="stock_status"
-                        defaultValue={o?.stock_status ?? ""}
-                        className="h-8 rounded border border-light-grey bg-background px-2 text-xs"
-                      >
-                        <option value="">(seed: {p.stockStatus})</option>
-                        {STOCK_OPTIONS.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
-                      </select>
+                      Edit
+                    </Link>
+                    <form action={setProductActiveAction}>
+                      <input type="hidden" name="item_code" value={p.erpnextItemCode} />
+                      <input type="hidden" name="active" value={p.active ? "0" : "1"} />
                       <button className="text-xs text-steel underline hover:text-primary">
-                        Save
+                        {p.active ? "Archive" : "Restore"}
                       </button>
                     </form>
-                  </td>
-                </tr>
-              );
-            })}
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

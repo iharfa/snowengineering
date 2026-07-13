@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { z } from "zod";
-import { getProductByCode } from "@/data/products";
+import { getCatalogProductByCode } from "@/lib/catalog";
 import { erpnextConfigured, createPriceRevealLog } from "@/lib/erpnext";
 import { resolveProductPrice } from "@/lib/order-server";
 import { insertPriceReveal } from "@/lib/db";
@@ -44,14 +44,14 @@ export async function POST(req: Request) {
 
   // Only catalog products can be priced — this endpoint must not let callers
   // read arbitrary ERPNext item prices by guessing item codes.
-  const seed = getProductByCode(data.itemCode);
+  const seed = await getCatalogProductByCode(data.itemCode);
   if (!seed) {
     return NextResponse.json({ error: "Unknown product" }, { status: 404 });
   }
   const gstRate = seed.gstRate ?? DEFAULT_GST_RATE;
   const currency = seed.currency ?? "MVR";
 
-  // Admin override → live ERPNext price → seed fallback.
+  // Catalog price (admin-managed) → live ERPNext fallback.
   const price = await resolveProductPrice(seed);
   if (price == null) {
     return NextResponse.json({ error: "Price unavailable" }, { status: 404 });

@@ -5,20 +5,19 @@
 // sales record or the order email.
 
 import type { CartItem, Product } from "@/lib/types";
-import { getProductByCode } from "@/data/products";
+import { getCatalogProductByCode } from "@/lib/catalog";
 import { erpnextConfigured, getItemPrice } from "@/lib/erpnext";
-import { getProductOverride } from "@/lib/db";
 
-// Price precedence: admin override (set in /admin/products) → live ERPNext
-// price → seed catalog fallback.
-export async function resolveProductPrice(seed: Product): Promise<number | null> {
-  const override = await getProductOverride(seed.erpnextItemCode);
-  if (override?.price != null) return override.price;
+// Price precedence: the database catalog price (managed in /admin/products)
+// is authoritative; live ERPNext is consulted only if the catalog has no
+// price set for the item.
+export async function resolveProductPrice(product: Product): Promise<number | null> {
+  if (product.price > 0) return product.price;
   if (erpnextConfigured) {
-    const live = await getItemPrice(seed.erpnextItemCode);
+    const live = await getItemPrice(product.erpnextItemCode);
     if (live != null) return live;
   }
-  return seed.price ?? null;
+  return null;
 }
 
 export type ResolvedOrder =
@@ -40,21 +39,21 @@ export async function resolveOrderItems(
 
   const resolved = await Promise.all(
     [...merged.entries()].map(async ([code, quantity]): Promise<CartItem | null> => {
-      const seed = getProductByCode(code);
-      if (!seed) {
+      const product = await getCatalogProductByCode(code);
+      if (!product) {
         unknownCodes.push(code);
         return null;
       }
-      const price = await resolveProductPrice(seed);
+      const price = await resolveProductPrice(product);
       return {
-        id: seed.id,
-        slug: seed.slug,
-        name: seed.name,
-        erpnextItemCode: seed.erpnextItemCode,
+        id: product.id,
+        slug: product.slug,
+        name: product.name,
+        erpnextItemCode: product.erpnextItemCode,
         quantity,
         price,
-        currency: seed.currency,
-        gstRate: seed.gstRate,
+        currency: product.currency,
+        gstRate: product.gstRate,
       };
     })
   );

@@ -45,6 +45,8 @@ of sending them.
 | `ERPNEXT_API_KEY` / `ERPNEXT_API_SECRET` | Token auth: `Authorization: token KEY:SECRET` |
 | `ERPNEXT_PRICE_LIST` | Price list to read item prices from (default `Standard Selling`) |
 | `SNOW_ORDER_EMAIL` | Inbox that receives order inquiries and contact messages |
+| `SNOW_TIN` | MIRA TIN — when set, invoices print as TAX INVOICE with the TIN shown |
+| `SNOW_ADDRESS` | Business address printed on invoices (default `Malé City, Maldives`) |
 | `NEXT_PUBLIC_SNOW_WHATSAPP_NUMBER` | WhatsApp number for click-to-send orders (digits, intl format) |
 | `NEXT_PUBLIC_DEFAULT_GST_RATE` | Default GST rate %, default `8` |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` | SMTP for outbound email |
@@ -77,10 +79,20 @@ Set `ADMIN_PASSWORD` and open **`/admin`** to use the built-in backend:
 
 - **Dashboard** — open orders, pipeline value, new leads, reveal analytics.
 - **Orders** — every order inquiry (email _and_ WhatsApp) with a status
-  pipeline: Open → Quoted → Confirmed → Closed / Cancelled.
+  pipeline: Open → Quoted → Confirmed → Closed / Cancelled, and a
+  “Create invoice” action per order.
+- **Invoices** — sequential numbering (`INV-<year>-<seq>`), Draft → Issued →
+  Paid / Void statuses, and a printable document (Print / Save as PDF). Set
+  `SNOW_TIN` to print MIRA-style TAX INVOICE headers; issuing an invoice
+  stamps its tax point.
+- **Tax** — GST collected per month across Issued/Paid invoices (taxable
+  sales, GST, totals) for preparing MIRA GST returns.
 - **Leads** — contact-form submissions with New / Contacted / Closed statuses.
-- **Products** — override price and stock per item without a code deploy.
-  Price precedence everywhere: admin override → live ERPNext → seed catalog.
+- **Products** — full catalog management: add, edit, archive, and restore
+  products (name, category, descriptions, specs, image, price, GST rate,
+  stock, price-hidden flag). Changes are live on the shop immediately. The
+  catalog lives in the database; `data/products.ts` is only the first-run
+  import and the fallback if the database is unreachable.
 
 Back up `data/snow.db` regularly when running on a file (it is one file;
 copying it is a full backup). Turso has built-in point-in-time restore.

@@ -11,7 +11,7 @@ const csp = [
     isDev ? " 'unsafe-eval' https://va.vercel-scripts.com" : ""
   }`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data:",
+  "img-src 'self' data: https:", // https: for admin-entered product image URLs
   "font-src 'self' data:",
   `connect-src 'self' https://challenges.cloudflare.com${isDev ? " ws:" : ""}`,
   "frame-src https://challenges.cloudflare.com",

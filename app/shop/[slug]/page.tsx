@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { ChevronRight } from "lucide-react";
-import { products, getProductBySlug } from "@/data/products";
+import { ProductImage } from "@/components/ProductImage";
+import { getCatalogProductBySlug } from "@/lib/catalog";
 import { ProductDetailActions } from "@/components/ProductDetailActions";
 
-export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
-}
+// Catalog is database-managed (see /admin/products) — render per request.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -16,7 +15,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getCatalogProductBySlug(slug);
   if (!product) return { title: "Product not found | Snow Engineering" };
   return {
     title: `${product.name} | Snow Engineering`,
@@ -30,7 +29,7 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getCatalogProductBySlug(slug);
   if (!product) notFound();
 
   return (
@@ -43,12 +42,10 @@ export default async function ProductPage({
 
       <div className="grid gap-10 lg:grid-cols-2">
         <div className="tech-card relative aspect-square bg-background">
-          <Image
+          <ProductImage
             src={product.image}
             alt={product.name}
-            fill
             sizes="(max-width:1024px) 100vw, 50vw"
-            className="object-cover"
             priority
           />
         </div>

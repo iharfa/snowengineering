@@ -1,18 +1,19 @@
-"use client";
+import type { Metadata } from "next";
+import { ShopCatalog } from "@/components/ShopCatalog";
+import { getCatalog, catalogCategories } from "@/lib/catalog";
 
-import { useState } from "react";
-import { ProductCard } from "@/components/ProductCard";
-import { products, categories } from "@/data/products";
-import { cn } from "@/lib/utils";
+export const metadata: Metadata = {
+  title: "Shop | Snow Engineering",
+  description:
+    "Browse VRFs, small water plants, spare parts, and controllers. Reveal prices and submit order inquiries by email or WhatsApp.",
+};
 
-const tabs = ["All Categories", ...categories] as const;
+// Catalog is database-managed (see /admin/products) — render per request.
+export const dynamic = "force-dynamic";
 
-export default function ShopPage() {
-  const [active, setActive] = useState<(typeof tabs)[number]>("All Categories");
-  const shown =
-    active === "All Categories"
-      ? products
-      : products.filter((p) => p.category === active);
+export default async function ShopPage() {
+  const products = await getCatalog();
+  const categories = catalogCategories(products);
 
   return (
     <>
@@ -31,30 +32,7 @@ export default function ShopPage() {
         </div>
       </section>
 
-      <section className="container-tech py-10">
-        <div className="flex flex-wrap gap-2">
-          {tabs.map((t) => (
-            <button
-              key={t}
-              onClick={() => setActive(t)}
-              className={cn(
-                "rounded border px-4 py-2 text-sm font-medium transition-colors",
-                active === t
-                  ? "border-primary bg-primary text-white"
-                  : "border-light-grey bg-white text-charcoal hover:border-primary hover:text-primary"
-              )}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {shown.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
-      </section>
+      <ShopCatalog products={products} categories={categories} />
     </>
   );
 }
